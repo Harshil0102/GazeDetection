@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template_string
+from flask import Flask, Response, render_template_string, redirect, url_for
 import cv2
 import dlib
 import numpy as np
@@ -64,9 +64,11 @@ def generate_frames():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+
+# Route for the index page
 @app.route('/')
 def index():
-    # Simple HTML page with a link to the video feed
+    # HTML page with a link to start the video feed
     return render_template_string('''
     <!doctype html>
     <title>Gaze Detection</title>
@@ -74,10 +76,33 @@ def index():
     <p><a href="/video_feed">Start Video Feed</a></p>
     ''')
 
+# Route for the video feed page
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    # HTML page with a video feed and a close button
+    return render_template_string('''
+    <!doctype html>
+    <title>Video Feed</title>
+    <h1>Video Feed</h1>
+    <img src="{{ url_for('video_feed_stream') }}" style="display:block;margin:auto;">
+    <form action="{{ url_for('index') }}" method="get">
+        <input type="submit" value="Close Webcam">
+    </form>
+    ''')
+
+# Route for streaming video frames
+@app.route('/video_feed_stream')
+def video_feed_stream():
+    # Streaming video frames using Response
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Route to close the webcam and redirect to the index page
+@app.route('/close_webcam')
+def close_webcam():
+    # Redirect to the index page
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
+
+
