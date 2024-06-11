@@ -1,4 +1,6 @@
 Flask
 opencv-python-headless
+cmake
 dlib
 numpy
+gunicorn
