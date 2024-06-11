@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 # Install system dependencies for dlib
 RUN apt-get update && apt-get install -y \
@@ -20,6 +20,11 @@ COPY requirements.txt .
 # Install the Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# Download and install dlib from the provided .whl file
+RUN wget https://github.com/z-mahmud22/Dlib_Windows_Python3.x/raw/main/dlib-19.24.1-cp311-cp311-win_amd64.whl -O dlib.whl && \
+    pip install dlib.whl && \
+    rm dlib.whl
 
 # Copy the rest of the application into the image
 COPY . .
